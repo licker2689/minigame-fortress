@@ -16,9 +16,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly(kotlin("stdlib"))
+    implementation(kotlin("stdlib"))
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
-    compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
+    implementation("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
 
     implementation("com.github.monun:tap:3.+")
     implementation("com.github.monun:kommand:0.7.0")
