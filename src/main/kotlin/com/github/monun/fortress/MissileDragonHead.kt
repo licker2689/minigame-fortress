@@ -7,6 +7,7 @@ import org.bukkit.*
 import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.RayTraceResult
+import org.bukkit.util.Vector
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlin.random.Random.Default.nextFloat
@@ -84,17 +85,20 @@ class MissileDragonHead : Missile() {
     override fun onHit(result: RayTraceResult) {
         fakeEntity.remove()
         manager.removeMissile(this)
+        detonate(result.hitPosition)
+    }
 
+    override fun detonate(pos: Vector) {
         val world = missileProjectile.location.world
-        val pos = result.hitPosition
-
-        world.createExplosion(pos.x, pos.y, pos.z, 5.0F)
-        world.spawnParticle(
-            Particle.EXPLOSION_HUGE,
-            pos.x, pos.y, pos.z,
-            1,
-            0.0, 0.0, 0.0, 1.0, null, true
-        )
+        pos.run {
+            world.createExplosion(pos.x, pos.y, pos.z, 5.0F)
+            world.spawnParticle(
+                Particle.EXPLOSION_HUGE,
+                pos.x, pos.y, pos.z,
+                1,
+                0.0, 0.0, 0.0, 1.0, null, true
+            )
+        }
     }
 
     override fun playExhaustEffect(trail: Trail) {

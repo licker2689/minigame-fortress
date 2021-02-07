@@ -52,4 +52,9 @@ class MissileProjectile(
         // 배기 시각 효과 재생
         missile.playExhaustEffect(trail)
     }
+
+    override fun onRemove() {
+        missile.destroy()
+        missile.manager.removeMissile(missile)
+    }
 }

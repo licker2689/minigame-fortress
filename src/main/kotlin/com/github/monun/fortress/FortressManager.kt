@@ -9,7 +9,10 @@ import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 import org.bukkit.scheduler.BukkitTask
+import org.bukkit.util.Vector
 import java.util.*
+import kotlin.collections.HashMap
+import kotlin.math.min
 
 class FortressManager(
     plugin: FortressPlugin
@@ -45,30 +48,42 @@ class FortressManager(
         onlinePlayers.values.forEach { it.update() }
         fakeProjectileManager.update()
 
+        val destroyed = hashSetOf<Missile>()
+        val missiles = this.missiles.filter { it.lastTrail != null }
+
+        // 미사일간 경로 거리재기
+        for (missile in missiles) {
+            for (other in missiles) {
+                if (missile === other) continue
+                if (missile in destroyed && other in destroyed) continue
+
+                val trail = missile.lastTrail!!
+                val otherTrail = other.lastTrail!!
 
 
+                val a1 = trail.from.toVector()
+                val a2 = otherTrail.from.toVector()
+                val b1 = trail.to.toVector()
+                val b2 = otherTrail.to.toVector()
+                val midpoint = Vector().add(a1).add(a2).add(b1).add(b2).multiply(1.0 / 4.0)
+
+                val distance = midpoint.distanceFromLine(a1, b1) + midpoint.distanceFromLine(a2, b2)
+
+                if (distance < 2.0) {
+                    destroyed.add(missile)
+                }
+            }
+        }
 
 
-
-
+        this.missiles.removeAll(destroyed)
+        for (missile in destroyed) {
+            missile.detonate(missile.lastTrail!!.to.toVector())
+            missile.destroy()
+        }
 
         fakeEntityServer.update()
-
-
     }
-
-    //fun main() {
-//    val r1 = Vector(2, 6, -9)
-//    val r2 = Vector(-1, -2, 3)
-//    val e1 = Vector(3, 4, -4)
-//    val e2 = Vector(2, -6, 1)
-//
-//    val n = e1.getCrossProduct(e2)
-//
-//    val distance = n.clone().dot(r1.clone().subtract(r2)) / n.length()
-//
-//    println(distance)
-//}
 
     fun join(player: Player) {
         players.computeIfAbsent(player.uniqueId) { FortressPlayer(this, player) }.also {
@@ -110,7 +125,11 @@ class FortressManager(
         projectile.velocity = missile.launchLocation.direction.multiply(power)
     }
 
-    fun removeMissile(missile: MissileDragonHead) {
+    fun removeMissile(missile: Missile) {
         missiles.remove(missile)
     }
+}
+
+fun Vector.distanceFromLine(from: Vector, to: Vector): Double {
+    return  clone().subtract(from).getCrossProduct(clone().subtract(to)).length() / to.clone().subtract(from).length()
 }

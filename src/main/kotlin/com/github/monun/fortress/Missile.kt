@@ -11,6 +11,7 @@ import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.EulerAngle
 import org.bukkit.util.RayTraceResult
+import org.bukkit.util.Vector
 
 abstract class Missile {
     companion object {
@@ -58,4 +59,11 @@ abstract class Missile {
             )
         }
     }
+
+    fun destroy() {
+        fakeEntity.remove()
+        missileProjectile.remove()
+    }
+
+    abstract fun detonate(pos: Vector)
 }
