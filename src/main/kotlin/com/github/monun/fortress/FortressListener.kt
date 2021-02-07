@@ -1,5 +1,6 @@
 package com.github.monun.fortress
 
+import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
@@ -97,11 +98,15 @@ class FortressListener(
         // 돌 블록을 부술때 보너스
 
         val block = event.block
+        val player = event.player
 
-        if (block.type == Material.STONE && event.isDropItems) {
+        if (block.type == Material.STONE
+            && player.gameMode.let { it == GameMode.SURVIVAL || it == GameMode.ADVENTURE }
+            && block.getDrops(player.inventory.itemInMainHand, player).isNotEmpty()
+        ) {
             event.isDropItems = false
 
-            val loc = block.location
+            val loc = block.location.add(0.5, 0.8, 0.5)
             val count = max(1, sqrt(nextInt(64).toDouble()).toInt())
 
             for (i in 0 until count) {
@@ -111,7 +116,7 @@ class FortressListener(
                     ItemStack(Material.COBBLESTONE)
                 }
 
-                loc.world.dropItemNaturally(loc, item).apply {
+                loc.world.dropItem(loc, item).apply {
                     pickupDelay -= i * 2
                 }
             }
