@@ -37,12 +37,13 @@ class FortressListener(
     fun onPlayerInteract(event: PlayerInteractEvent) {
         val item = event.item ?: return
         val player = event.player
-        val action = event.action
 
         if (player.isSneaking) return
 
         if (event.action == Action.RIGHT_CLICK_AIR) {
             if (item.isSimilar(Missile.dragonHeadItemStack)) {
+                //미사일 발사
+
                 event.isCancelled = true
 
                 val missile = MissileDragonHead()
@@ -51,6 +52,8 @@ class FortressListener(
                 })
                 item.amount--
             } else if (item.type == Material.COBBLESTONE) {
+                // 브릿지 설치
+
                 event.isCancelled = true
 
                 val loc = player.location.apply { y -= 0.001; pitch = 0F }
@@ -91,6 +94,8 @@ class FortressListener(
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     fun onBlockBreak(event: BlockBreakEvent) {
+        // 돌 블록을 부술때 보너스
+
         val block = event.block
 
         if (block.type == Material.STONE && event.isDropItems) {
@@ -100,7 +105,13 @@ class FortressListener(
             val count = max(1, sqrt(nextInt(64).toDouble()).toInt())
 
             for (i in 0 until count) {
-                loc.world.dropItemNaturally(loc, ItemStack(Material.COBBLESTONE, 1)).apply {
+                val item = if (nextInt(16) == 0) {
+                    ItemStack(Material.COAL)
+                } else {
+                    ItemStack(Material.COBBLESTONE)
+                }
+
+                loc.world.dropItemNaturally(loc, item).apply {
                     pickupDelay -= i * 2
                 }
             }
@@ -112,11 +123,7 @@ class FortressListener(
         val state = event.newState
 
         if (state.type == Material.COBBLESTONE) {
-            if (nextInt(4) == 0) {
-                state.type = Material.COAL_ORE
-            } else {
-                state.type = Material.STONE
-            }
+            state.type = Material.STONE
         }
     }
 }
