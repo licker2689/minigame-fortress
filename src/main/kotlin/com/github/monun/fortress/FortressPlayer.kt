@@ -2,10 +2,12 @@ package com.github.monun.fortress
 
 import com.google.common.base.Predicate
 import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import kotlin.math.min
 
@@ -31,11 +33,11 @@ class FortressPlayer(
         get() {
             val player = player ?: error("Null player")
             val team =
-                Bukkit.getScoreboardManager().mainScoreboard.getEntryTeam(name) ?: return Predicate { it !== player }
-
+                Bukkit.getScoreboardManager().mainScoreboard.getEntryTeam(name)
+                    ?: return Predicate { it !== player && defaultEnemySelector.test(it) }
             return Predicate {
-                if (it == null || it === player) false
-                else team.hasEntry(it.name) || team.hasEntry(it.uniqueId.toString())
+                defaultEnemySelector.test(it) && if (it == null || it === player) false
+                else !team.hasEntry(it.name) && !team.hasEntry(it.uniqueId.toString())
             }
         }
 
@@ -83,6 +85,21 @@ class FortressPlayer(
 
     companion object {
         const val maxLaunchPower = 40
+
+        val defaultEnemySelector = Predicate<Entity> { entity ->
+            if (entity == null) false
+            else {
+                if (entity.isValid && entity is LivingEntity && entity.health > 0.0) {
+                    if (entity is Player) {
+                        return@Predicate entity.gameMode.let { it == GameMode.SURVIVAL || it == GameMode.ADVENTURE }
+                    }
+
+                    return@Predicate true
+                }
+
+                false
+            }
+        }
     }
 
     private fun updateMissileBar() {

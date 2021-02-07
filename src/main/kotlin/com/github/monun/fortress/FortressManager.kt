@@ -3,16 +3,17 @@ package com.github.monun.fortress
 import com.github.monun.fortress.plugin.FortressPlugin
 import com.github.monun.tap.fake.FakeEntityServer
 import com.github.monun.tap.fake.FakeProjectileManager
+import com.github.monun.tap.math.normalizeAndLength
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 import org.bukkit.scheduler.BukkitTask
+import org.bukkit.util.BoundingBox
 import org.bukkit.util.Vector
 import java.util.*
 import kotlin.collections.HashMap
-import kotlin.math.min
 
 class FortressManager(
     plugin: FortressPlugin
@@ -53,28 +54,30 @@ class FortressManager(
 
         // 미사일간 경로 거리재기
         for (missile in missiles) {
-            for (other in missiles) {
-                if (missile === other) continue
+            val iterator = missiles.iterator()
+
+            //fast skip
+            while (true) {
+                if (iterator.next() === missile) break
+            }
+
+            val lastTrail = missile.lastTrail!!
+            val from = lastTrail.from.toVector()
+            val vector = lastTrail.velocity!!
+            val length = vector.normalizeAndLength()
+
+
+            while (iterator.hasNext()) {
+                val other = iterator.next()
                 if (missile in destroyed && other in destroyed) continue
 
-                val trail = missile.lastTrail!!
-                val otherTrail = other.lastTrail!!
-
-
-                val a1 = trail.from.toVector()
-                val a2 = otherTrail.from.toVector()
-                val b1 = trail.to.toVector()
-                val b2 = otherTrail.to.toVector()
-                val midpoint = Vector().add(a1).add(a2).add(b1).add(b2).multiply(1.0 / 4.0)
-
-                val distance = midpoint.distanceFromLine(a1, b1) + midpoint.distanceFromLine(a2, b2)
-
-                if (distance < 2.0) {
+                val box = BoundingBox.of(other.lastTrail!!.from, 3.0, 3.0, 3.0)
+                box.rayTrace(from, vector, length)?.run {
                     destroyed.add(missile)
+                    destroyed.add(other)
                 }
             }
         }
-
 
         this.missiles.removeAll(destroyed)
         for (missile in destroyed) {
@@ -128,8 +131,4 @@ class FortressManager(
     fun removeMissile(missile: Missile) {
         missiles.remove(missile)
     }
-}
-
-fun Vector.distanceFromLine(from: Vector, to: Vector): Double {
-    return  clone().subtract(from).getCrossProduct(clone().subtract(to)).length() / to.clone().subtract(from).length()
 }

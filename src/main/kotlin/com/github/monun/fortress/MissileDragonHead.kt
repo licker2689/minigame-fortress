@@ -91,7 +91,7 @@ class MissileDragonHead : Missile() {
     override fun detonate(pos: Vector) {
         val world = missileProjectile.location.world
         pos.run {
-            world.createExplosion(pos.x, pos.y, pos.z, 5.0F)
+            world.createExplosion(pos.x, pos.y, pos.z, 5.0F, false, true)
             world.spawnParticle(
                 Particle.EXPLOSION_HUGE,
                 pos.x, pos.y, pos.z,
@@ -102,7 +102,7 @@ class MissileDragonHead : Missile() {
     }
 
     override fun playExhaustEffect(trail: Trail) {
-        trail(trail.from, trail.to, 0.5, this::playExhaustEffect)
+        trail(trail.from, trail.to, 0.3, this::playExhaustEffect)
     }
 
     private fun playExhaustEffect(world: World, x: Double, y: Double, z: Double) {
