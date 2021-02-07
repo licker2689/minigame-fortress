@@ -5,6 +5,7 @@ import com.github.monun.tap.fake.Trail
 import com.github.monun.tap.trail.trail
 import org.bukkit.*
 import org.bukkit.entity.ArmorStand
+import org.bukkit.entity.TNTPrimed
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.RayTraceResult
 import org.bukkit.util.Vector

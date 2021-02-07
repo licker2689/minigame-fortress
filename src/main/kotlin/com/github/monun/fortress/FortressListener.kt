@@ -1,13 +1,12 @@
 package com.github.monun.fortress
 
-import org.bukkit.GameMode
-import org.bukkit.Material
-import org.bukkit.Sound
+import org.bukkit.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockFormEvent
 import org.bukkit.event.entity.ItemMergeEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -27,6 +26,13 @@ class FortressListener(
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         manager.join(event.player)
+
+        val player = event.player
+        val team = Bukkit.getScoreboardManager().mainScoreboard.getEntryTeam(player.name)
+
+        if (team == null || team.color == ChatColor.RESET) {
+            player.gameMode = GameMode.SPECTATOR
+        }
     }
 
     @EventHandler
@@ -39,7 +45,7 @@ class FortressListener(
         val item = event.item ?: return
         val player = event.player
 
-        if (player.isSneaking) return
+        if (player.isSneaking || player.gameMode == GameMode.SPECTATOR) return
 
         if (event.action == Action.RIGHT_CLICK_AIR) {
             if (item.isSimilar(Missile.dragonHeadItemStack)) {
@@ -54,7 +60,6 @@ class FortressListener(
                 item.amount--
             } else if (item.type == Material.COBBLESTONE) {
                 // 브릿지 설치
-
                 event.isCancelled = true
 
                 val loc = player.location.apply { y -= 0.001; pitch = 0F }
@@ -81,6 +86,8 @@ class FortressListener(
 
     @EventHandler
     fun onPlayerSneak(event: PlayerToggleSneakEvent) {
+        if (event.player.gameMode == GameMode.SPECTATOR) return
+
         if (event.isSneaking) {
             event.player.fortress().prepareLaunch()
         } else {
