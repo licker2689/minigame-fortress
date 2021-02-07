@@ -1,6 +1,7 @@
 package com.github.monun.fortress
 
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -13,14 +14,11 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.util.BlockIterator
 import kotlin.math.max
 import kotlin.math.sqrt
 import kotlin.random.Random.Default.nextInt
 
-private val Action.isRightClick: Boolean
-    get() {
-        return this == Action.RIGHT_CLICK_AIR || this == Action.RIGHT_CLICK_BLOCK
-    }
 
 class FortressListener(
     private val manager: FortressManager
@@ -39,17 +37,41 @@ class FortressListener(
     fun onPlayerInteract(event: PlayerInteractEvent) {
         val item = event.item ?: return
         val player = event.player
+        val action = event.action
 
         if (player.isSneaking) return
 
-        if (event.action.isRightClick && item.isSimilar(Missile.dragonHeadItemStack)) {
-            event.isCancelled = true
+        if (event.action == Action.RIGHT_CLICK_AIR) {
+            if (item.isSimilar(Missile.dragonHeadItemStack)) {
+                event.isCancelled = true
 
-            val missile = MissileDragonHead()
-            player.fortress().addMissile(missile, player.eyeLocation.apply {
-                add(direction.multiply(2.0))
-            })
-            item.amount--
+                val missile = MissileDragonHead()
+                player.fortress().addMissile(missile, player.eyeLocation.apply {
+                    add(direction.multiply(2.0))
+                })
+                item.amount--
+            } else if (item.type == Material.COBBLESTONE) {
+                event.isCancelled = true
+
+                val loc = player.location.apply { y -= 0.001; pitch = 0F }
+                if (loc.block.type.isAir) return
+                val iterator = BlockIterator(loc, 0.0, 8)
+
+                while (iterator.hasNext()) {
+                    val block = iterator.next()
+
+                    if (block.type.isAir) {
+                        block.type = Material.COBBLESTONE
+                        loc.world.playSound(
+                            block.location.add(0.5, 0.5, 0.5),
+                            Sound.BLOCK_STONE_PLACE,
+                            1.0F, 1.0F
+                        )
+                        item.amount--
+                        break
+                    }
+                }
+            }
         }
     }
 
@@ -78,7 +100,9 @@ class FortressListener(
             val count = max(1, sqrt(nextInt(64).toDouble()).toInt())
 
             for (i in 0 until count) {
-                loc.world.dropItemNaturally(loc, ItemStack(Material.COBBLESTONE, 1))
+                loc.world.dropItemNaturally(loc, ItemStack(Material.COBBLESTONE, 1)).apply {
+                    pickupDelay -= i * 2
+                }
             }
         }
     }
@@ -88,7 +112,11 @@ class FortressListener(
         val state = event.newState
 
         if (state.type == Material.COBBLESTONE) {
-            state.type = Material.STONE
+            if (nextInt(4) == 0) {
+                state.type = Material.COAL_ORE
+            } else {
+                state.type = Material.STONE
+            }
         }
     }
 }
