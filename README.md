@@ -1,5 +1,5 @@
 # Fortress
-[![Build Status](https://travis-ci.com/monun/minigame-fortress.svg?branch=master)](https://travis-ci.org/monun/minigame-fortress)
+[![Build Status](https://www.travis-ci.com/monun/minigame-fortress.svg?branch=master)](https://www.travis-ci.com/monun/minigame-fortress)
 
 [![](http://img.youtube.com/vi/MVLbOHXiem0/0.jpg)](http://www.youtube.com/watch?v=MVLbOHXiem0 "")
 
