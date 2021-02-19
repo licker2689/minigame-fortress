@@ -5,4 +5,4 @@
 
 * 1.16.5
 * JDK 11
-* [서버](https://github.com/monun/fortress/releases/download/0.0.1/server.ps1)
+* [서버](https://github.com/monun/minigame-fortress/releases/download/0.0.1/server.ps1)
