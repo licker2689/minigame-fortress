@@ -16,7 +16,7 @@ import org.bukkit.util.Vector
 abstract class Missile {
     companion object {
         val dragonHeadItemStack = ItemStack(Material.DRAGON_HEAD).apply {
-            itemMeta = itemMeta.apply { setDisplayName("${ChatColor.RESET}드래곤 머리 미사일") }
+            itemMeta = itemMeta?.apply { setDisplayName("${ChatColor.RESET}드래곤 머리 미사일") }
         }
     }
 

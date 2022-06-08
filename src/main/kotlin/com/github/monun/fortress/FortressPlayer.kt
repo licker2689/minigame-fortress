@@ -33,7 +33,7 @@ class FortressPlayer(
         get() {
             val player = player ?: error("Null player")
             val team =
-                Bukkit.getScoreboardManager().mainScoreboard.getEntryTeam(name)
+                Bukkit.getScoreboardManager()?.mainScoreboard?.getEntryTeam(name)
                     ?: return Predicate { it !== player && defaultEnemySelector.test(it) }
             return Predicate {
                 defaultEnemySelector.test(it) && if (it == null || it === player) false

@@ -28,7 +28,7 @@ class FortressListener(
         manager.join(event.player)
 
         val player = event.player
-        val team = Bukkit.getScoreboardManager().mainScoreboard.getEntryTeam(player.name)
+        val team = Bukkit.getScoreboardManager()?.mainScoreboard?.getEntryTeam(player.name)
 
         if (team == null || team.color == ChatColor.RESET) {
             player.gameMode = GameMode.SPECTATOR
@@ -71,7 +71,7 @@ class FortressListener(
 
                     if (block.type.isAir) {
                         block.type = Material.COBBLESTONE
-                        loc.world.playSound(
+                        loc.world?.playSound(
                             block.location.add(0.5, 0.5, 0.5),
                             Sound.BLOCK_STONE_PLACE,
                             1.0F, 1.0F
@@ -123,7 +123,7 @@ class FortressListener(
                     ItemStack(Material.COBBLESTONE)
                 }
 
-                loc.world.dropItem(loc, item).apply {
+                loc.world?.dropItem(loc, item)?.apply {
                     pickupDelay -= i * 2
                 }
             }

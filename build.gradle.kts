@@ -1,7 +1,7 @@
 import java.io.OutputStream
 
 plugins {
-    kotlin("jvm") version "1.4.30"
+    kotlin("jvm") version "1.5.20"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 //    `maven-publish`
 }
@@ -11,14 +11,24 @@ val relocate = (findProperty("relocate") as? String)?.toBoolean() ?: true
 repositories {
     mavenLocal()
     mavenCentral()
-    maven(url = "https://papermc.io/repo/repository/maven-public/")
+    maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
     maven(url = "https://jitpack.io/")
+    maven {
+        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        content {
+            group = includeGroup("org.bukkit")
+            group = includeGroup("org.spigotmc")
+        }
+    }
+
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.5.10")
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
-    implementation("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT")
+
 
     implementation("com.github.monun:tap:3.+")
     implementation("com.github.monun:kommand:0.7.0")
@@ -26,12 +36,12 @@ dependencies {
 //    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
 //    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 //    testImplementation("org.mockito:mockito-core:3.6.28")
-    testImplementation("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
+    testImplementation("org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT")
 }
 
 tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
+        kotlinOptions.jvmTarget = "16"
     }
     processResources {
         filesMatching("**/*.yml") {

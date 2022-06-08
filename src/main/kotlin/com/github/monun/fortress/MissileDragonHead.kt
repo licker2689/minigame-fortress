@@ -42,7 +42,7 @@ class MissileDragonHead : Missile() {
                 wiggle = 0.4
 
                 for (i in 0 until 3) {
-                    world.spawnParticle(
+                    world?.spawnParticle(
                         Particle.CAMPFIRE_COSY_SMOKE,
                         loc.clone().add(vector),
                         0,
@@ -55,7 +55,7 @@ class MissileDragonHead : Missile() {
             }
 
             for (i in 0 until 10) {
-                world.spawnParticle(
+                world?.spawnParticle(
                     Particle.FLAME,
                     loc,
                     0,
@@ -73,7 +73,7 @@ class MissileDragonHead : Missile() {
     override fun playPrepareSound(launch: Boolean) {
         if (launch) {
             launchLocation.clone().run {
-                world.playSound(
+                world?.playSound(
                     this,
                     Sound.ENTITY_GENERIC_EXPLODE,
                     0.1F,
@@ -92,13 +92,17 @@ class MissileDragonHead : Missile() {
     override fun detonate(pos: Vector) {
         val world = missileProjectile.location.world
         pos.run {
-            world.createExplosion(pos.x, pos.y, pos.z, 5.0F, false, true)
-            world.spawnParticle(
-                Particle.EXPLOSION_HUGE,
-                pos.x, pos.y, pos.z,
-                1,
-                0.0, 0.0, 0.0, 1.0, null, true
-            )
+            if (world != null) {
+                world.createExplosion(pos.x, pos.y, pos.z, 5.0F, false, true)
+            }
+            if (world != null) {
+                world.spawnParticle(
+                    Particle.EXPLOSION_HUGE,
+                    pos.x, pos.y, pos.z,
+                    1,
+                    0.0, 0.0, 0.0, 1.0, null, true
+                )
+            }
         }
     }
 
@@ -130,7 +134,7 @@ class MissileDragonHead : Missile() {
             val volume = 0.8 - (length / 64.0 * 0.8)
 
             playerLoc.add(vector)
-            world.playSound(
+            world?.playSound(
                 playerLoc,
                 Sound.ENTITY_FIREWORK_ROCKET_LAUNCH,
                 volume.toFloat(),

@@ -34,19 +34,21 @@ class MissileProjectile(
         val world = from.world
         val length = velocity.normalizeAndLength()
 
-        world.rayTrace(
-            from,
-            velocity,
-            length,
-            FluidCollisionMode.NEVER,
-            true,
-            0.75,
-            missile.shooter.enemySelector
-        )?.let {
-            // 충돌시
-            missile.onHit(it)
-            remove()
-            return
+        if (world != null) {
+            world.rayTrace(
+                from,
+                velocity,
+                length,
+                FluidCollisionMode.NEVER,
+                true,
+                0.75,
+                missile.shooter.enemySelector
+            )?.let {
+                // 충돌시
+                missile.onHit(it)
+                remove()
+                return
+            }
         }
 
         // 배기 시각 효과 재생
